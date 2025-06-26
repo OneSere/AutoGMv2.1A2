@@ -11,20 +11,20 @@ import json
 
 # --- Firebase Config ---
 firebase_config = {
-    "apiKey": "AIzaSyDV7ASwCt5zeeJyTGSOslcx-yj-oDU2JbY",
-    "authDomain": "autogm-b2a47.firebaseapp.com",
-    "databaseURL": "https://autogm-b2a47-default-rtdb.firebaseio.com",
-    "projectId": "autogm-b2a47",
-    "storageBucket": "autogm-b2a47.appspot.com",
-    "messagingSenderId": "469637394660",
-    "appId": "1:469637394660:web:b1b0e5ba394677cf9c7cf1"
+  "apiKey": "AIzaSyBt5ML2Ob9c2BqZRo2N2GN5bI7WBjg-Jzk",
+  "authDomain": "autogmv2aa2.firebaseapp.com",
+  "databaseURL": "https://autogmv2aa2-default-rtdb.firebaseio.com/",
+  "projectId": "autogmv2aa2",
+  "storageBucket": "autogmv2aa2.firebasestorage.app",
+  "messagingSenderId": "734385232100",
+  "appId": "1:734385232100:web:c9dd04e084a80bfee074f1"
 }
 firebase = pyrebase.initialize_app(firebase_config)
 db = firebase.database()
 
 API_ID = 25843334
 API_HASH = "e752bb9ebc151b7e36741d7ead8e4fd0"
-PHONE = "+919771565015"  # The phone number to login
+PHONE = "+919772303434"  # The phone number to login
 FIREBASE_PROMOS_PATH = "promos"
 FIREBASE_INTERVAL_PATH = "interval"
 FIREBASE_STATUS_PATH = "live_status"
@@ -384,35 +384,30 @@ def get_next_active_delay():
     hour = now.hour
     minute = now.minute
     t = hour * 60 + minute
-    # Define time slots in minutes since midnight
-    slots = [
-        (7*60, 11*60+30, 'active'),
-        (11*60+30, 11*60+50, 'tea'),
-        (11*60+50, 13*60+30, 'active'),
-        (13*60+30, 14*60+30, 'lunch'),
-        (14*60+30, 17*60, 'active'),
-        (17*60, 17*60+20, 'tea'),
-        (17*60+20, 25*60, 'active'),  # 25*60 = 1:00 AM next day
-        (25*60, 29*60, 'active'),     # 1:00 AM – 5:00 AM
-        (29*60, 33*60, 'sleep'),      # 5:00 AM – 9:00 AM (next day)
-    ]
     # Adjust for after midnight
-    if t < 7*60:
-        t += 24*60
+    if t < 600:
+        t += 1440
+    slots = [
+        (600, 870, 'active'),         # 10:00 AM – 2:30 PM
+        (870, 890, 'tea'),           # 2:30 PM – 2:50 PM
+        (890, 990, 'active'),        # 2:50 PM – 4:30 PM
+        (990, 1050, 'lunch'),        # 4:30 PM – 5:30 PM
+        (1050, 1200, 'active'),      # 5:30 PM – 8:00 PM
+        (1200, 1220, 'tea'),         # 8:00 PM – 8:20 PM
+        (1220, 1560, 'active'),      # 8:20 PM – 2:00 AM (next day)
+        (1560, 1680, 'lunch'),       # 2:00 AM – 4:00 AM (next day)
+        (1680, 1980, 'active'),      # 4:00 AM – 9:00 AM (next day)
+        (1980, 2160, 'sleep'),       # 9:00 AM – 12:00 PM (next day)
+    ]
     for start, end, status in slots:
         if start <= t < end:
             if status == 'active':
                 return 0, 'active'
             else:
-                # Sleep until end of break
                 mins_to_wait = end - t
                 return mins_to_wait * 60, status
-    # If not in any slot, sleep until 7:00 AM
-    if t >= 25*60 and t < 29*60:
-        mins_to_wait = 29*60 - t
-        return mins_to_wait * 60, 'sleep'
-    # Default: sleep until 7:00 AM
-    mins_to_wait = (7*60 + 24*60) - t
+    # Default: sleep until 10:00 AM
+    mins_to_wait = (600 + 1440) - t
     return mins_to_wait * 60, 'sleep'
 
 # --- Telegram Login ---
@@ -484,15 +479,15 @@ def ensure_firebase_defaults():
     # Promos
     promos = db.child(FIREBASE_PROMOS_PATH).get().val()
     default_promos = [
-        "🔥 All-in-One Telegram Toolkit You Need\n\n💸 Zepto Refund Method – ₹99\nEasy-to-follow trick to get successful refunds quickly\n\n📨 24/7 Telegram Auto Message Sending Tool – ₹159\nKeep your messages going non-stop, even when you're offline\n\n🤖 Custom Telegram Bot Script – ₹300\nTailor-made scripts to automate any task on Telegram\n\n💬 DM @curiositymind | ✅ Escrow Safe | 💰 Negotiable | Warranty Included",
-        "🚀 Tools to Grow, Automate & Save on Telegram\n\n👥 Telegram Group Scraping Tool – ₹49\nExtract members from any group with one click – fast & effective\n\n💸 100% Working Zepto Refund – ₹99\nReal method with high success rate and step-by-step guidance\n\n📡 Telegram Bot Hosting Method – ₹30/month\nRun your Telegram bots 24/7 without a VPS – light and stable\n\n📩 DM @curiositymind | Escrow ✅ | Nego Possible | Full Warranty",
-        "💬 Boost Your Telegram Game Like a Pro\n\n📤 Auto Message Send Tool – ₹159\nSchedule or loop messages every few minutes across multiple groups\n\n💰 Zepto Refund Plan – ₹99\nWorking method with actual proof and support included\n\n🤖 Telegram Bot Script Making – ₹300\nGet any kind of bot logic built specifically for Telegram\n\n💬 DM @curiositymind | Escrow + Support ✅ | Flexible Pricing 💵 | Warranty Available",
-        "🛠️ Tools for Telegram Hustlers & Automators\n\n🤖 Telegram Bot Script (Custom Build) – ₹300\nGet bots made for anything – replies, posts, data, filters & more\n\n📨 Auto Message Sender (24/7) – ₹159\nKeep your accounts active without lifting a finger\n\n👥 Group Member Scraper – ₹49\nFind and add targeted Telegram users with ease\n\nDM @curiositymind | Escrow Protected 🔐 | Price Negotiation ✅ | Warranty ✔",
-        "📈 Work Smarter on Telegram – Not Harder\n\n💸 Real Zepto Refund Method – ₹99\nNo risky steps – just follow and get results\n\n📤 24/7 Telegram Message Bot – ₹159\nSend messages day and night, auto-managed by tool\n\n💻 Telegram Bot Hosting Method – ₹30/month\nAffordable and easy way to keep your bot online full-time\n\n💬 DM @curiositymind | Nego ✅ | Escrow Supported | With Warranty 🛠️",
-        "💻 Professional Telegram Tools, Minimal Prices\n\n🛠️ Telegram Bot Script Development – ₹300\nYour logic, our code – smart Telegram bots built on demand\n\n📨 Auto Telegram Messaging Tool – ₹159\nSaves time, boosts reach – messages go on loop, 24/7\n\n📥 Telegram Group Scraper – ₹49\nGet fresh users from any group, in just seconds\n\nDM @curiositymind | Escrow On | Price Chat Open 💬 | Warranty ✅",
-        "🔧 Tools to Manage, Automate & Scale Telegram\n\n📤 Auto Message Sender Tool – ₹159\nSet and forget – this bot handles the spamming for you safely\n\n💰 Zepto Refund Method – ₹99\nWorking plan to get your cashback hassle-free\n\n📡 Telegram Bot Hosting Method – ₹30/Month\nKeep your custom bots running without paying for servers\n\n💬 DM @curiositymind | Escrow & Nego ✅ | Warranty Support Available",
-        "🧠 Made for Smart Telegram Users\n\n👥 Group Scraping Tool – ₹49\nQuickly fetch members from any public group with one click\n\n🤖 Custom Telegram Bot Script – ₹300\nWe build bots that follow your instructions perfectly\n\n📨 Auto Message Send Tool (24x7) – ₹159\nStay live even while you sleep – send messages non-stop\n\nDM @curiositymind for access | Escrow ✅ | Negotiable | Warranty Assured",
-        "💬 Start Saving Time & Earning More on Telegram\n\n💸 Zepto Refund Plan – ₹99\nEasy method with working results and full guidance\n\n📨 Auto Telegram Messaging Bot – ₹159\nSends your message across multiple groups on full loop\n\n💻 Telegram Bot Hosting Method – ₹30/month\nRun your Telegram bots without expensive servers or coding\n\n💬 DM @curiositymind | Escrow ✅ | Open to Nego 💰 | Warranty ✅"
+        "Automate Messages to All Your Telegram Groups\nWant to send messages all day without touching your phone or PC?\nOur Telegram Auto Message Sender Tool lets you schedule, loop, and broadcast messages to multiple groups or users — fully automated.\n💡 Bonus: Includes smart delay, randomization, and loop options to avoid bans.\n\n💸 Price: ₹159 (One-time)\n💬 DM @curiositymind\n🔐 Escrow Safe | 💰 Negotiable | ✔ Warranty Included",
+        "Real Zepto Refund Method – Still Working in 2025\nTired of fake refund tricks? Try our tested Zepto refund method that still works today.\nWe provide a step-by-step guide, perfect for low-value refunds (₹50–₹100 range) without any complicated tools.\n💡 Bonus: Includes basic support if you're stuck during your first try.\n\n💸 Price: ₹99\n💬 Message @curiositymind\n✅ Escrow Available | 💬 Price Talk Open | 📦 Comes With Warranty",
+        "Custom Telegram Bots – Built for Your Needs\nWe develop fully functional Telegram bot scripts tailored to your specific task.\nWhether it's auto-replies, data collectors, admin bots, or full automation logic – we code exactly what you need.\n💡 Bonus: 1 free revision/update within 7 days of delivery.\n\n💸 Price: ₹300 (Fixed unless complex)\n💬 DM @curiositymind\n🔐 Escrow Protected | 💸 Negotiable | 🛠️ Warranty & Support Included",
+        "Telegram Group Scraper – Collect Real Users\nGrow your own group by extracting usernames from other public groups.\nOur Telegram member scraping tool lets you pull usernames and names accurately from any valid group.\n💡 Bonus: Export as CSV included for use in importing tools or campaigns.\n\n💸 Price: ₹49 (Instant delivery)\n💬 DM @curiositymind\n✅ Escrow Option | 💬 Negotiation Open | ✔ Comes with Guide + Warranty",
+        "Host Telegram Bots Without Paying for Servers\nRun your Telegram bot 24/7 using our special Telegram bot hosting method – no need for a VPS or coding knowledge.\nSimple to set up, runs on low-cost platforms, and keeps your bot always online.\n💡 Bonus: Includes sample setup file + walkthrough video for quick start.\n\n💸 Price: ₹30/month\n💬 Contact @curiositymind\n🔒 Escrow Available | 💰 Flexible Pricing | 🛡️ Full Setup Warranty",
+        "Auto Messaging with Anti-Ban Features\nKeep your accounts active and reach your audience with our Telegram Auto Messaging Tool.\nIt's optimized with smart delays, typing emulation, and rotation to reduce Telegram's spam flags.\n💡 Bonus: Supports multi-session (run more than one account if needed).\n\n💸 Price: ₹159\n💬 DM @curiositymind\n🔐 Escrow | 💬 Negotiable | 📦 With Warranty + User Manual",
+        "Get Bots that Respond, Post, Filter, or Do More\nWant a bot that handles group replies, filters spam, or posts daily content?\nWe create Telegram bot scripts for all kinds of tasks — fully custom and scalable.\n💡 Bonus: You get the full .py or .js file + support for deployment\n\n💸 Price: ₹300\n💬 Ping @curiositymind\n✅ Escrow Protected | 💰 Negotiable | 🔧 7-Day Update Warranty",
+        "Host Your Telegram Bot 24x7 – the Easy Way\nWhy pay ₹100s monthly for VPS when you can use our Telegram bot hosting method?\nHost unlimited Telegram bots on a cloud platform with auto restart, logs, and uptime monitoring.\n💡 Bonus: Includes auto-restart code and crash recovery tips.\n\n💸 Price: ₹30/month\n💬 DM @curiositymind\n🔐 Escrow ✅ | Nego Available | 🛡️ Hosting Guide + Lifetime Setup Support",
+        "Real User Growth for Telegram Channels & Groups\nStop buying fake members. Use our group scraper tool to get active users from public groups in your niche.\nIdeal for marketing, networking, or building targeted Telegram communities.\n💡 Bonus: Filter out bots, deleted accounts, and export clean member lists.\n\n💸 Price: ₹49\n💬 DM @curiositymind to buy\n✅ Escrow On | 💬 Nego Friendly | ✔️ Real-Time Help Included"
     ]
     if not promos:
         db.child(FIREBASE_PROMOS_PATH).set(default_promos)
@@ -800,3 +795,4 @@ async def main_loop():
 if __name__ == "__main__":
     ensure_firebase_defaults()
     asyncio.run(main_loop())
+
