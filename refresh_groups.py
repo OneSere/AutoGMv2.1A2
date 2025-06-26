@@ -12,20 +12,21 @@ import pyrebase
 
 # Firebase Config (same as main.py)
 firebase_config = {
-    "apiKey": "AIzaSyDV7ASwCt5zeeJyTGSOslcx-yj-oDU2JbY",
-    "authDomain": "autogm-b2a47.firebaseapp.com",
-    "databaseURL": "https://autogm-b2a47-default-rtdb.firebaseio.com",
-    "projectId": "autogm-b2a47",
-    "storageBucket": "autogm-b2a47.appspot.com",
-    "messagingSenderId": "469637394660",
-    "appId": "1:469637394660:web:b1b0e5ba394677cf9c7cf1"
+  "apiKey": "AIzaSyBt5ML2Ob9c2BqZRo2N2GN5bI7WBjg-Jzk",
+  "authDomain": "autogmv2aa2.firebaseapp.com",
+  "databaseURL": "https://autogmv2aa2-default-rtdb.firebaseio.com/",
+  "projectId": "autogmv2aa2",
+  "storageBucket": "autogmv2aa2.firebasestorage.app",
+  "messagingSenderId": "734385232100",
+  "appId": "1:734385232100:web:c9dd04e084a80bfee074f1"
 }
+
 firebase = pyrebase.initialize_app(firebase_config)
 db = firebase.database()
 
 API_ID = 25843334
 API_HASH = "e752bb9ebc151b7e36741d7ead8e4fd0"
-PHONE = "+919351044618"
+PHONE = "+919772303434"
 
 async def refresh_groups():
     """Refresh groups list in Firebase"""
